@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>내 영화 티어리스트</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    padding: 24px;
+    font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+    background: #f4f4f6;
+    color: #222;
+  }
+  .wrap { max-width: 960px; margin: 0 auto; }
+  h1 { font-size: 24px; margin: 0 0 16px; }
+
+  .board { display: flex; flex-direction: column; gap: 8px; }
+  .row {
+    display: flex;
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    min-height: 72px;
+    overflow: hidden;
+  }
+  .label {
+    flex: 0 0 64px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    font-weight: 700;
+    color: #fff;
+  }
+  .row[data-tier="S"] .label { background: #e5484d; }
+  .row[data-tier="A"] .label { background: #f76b15; }
+  .row[data-tier="B"] .label { background: #e2a300; }
+  .row[data-tier="C"] .label { background: #30a46c; }
+  .row[data-tier="미분류"] .label { background: #8b8d98; font-size: 14px; }
+
+  .zone {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-wrap: wrap;
+    align-content: flex-start;
+    gap: 8px;
+    padding: 10px;
+  }
+  .zone.over { background: #eef4ff; }
+
+  .card {
+    position: relative;
+    background: #fafafa;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    padding: 8px 12px;
+    cursor: grab;
+    user-select: none;
+    max-width: 100%;
+    overflow-wrap: anywhere;
+  }
+  .card.dragging { opacity: 0.4; }
+  .card.selected { border-color: #3e63dd; box-shadow: 0 0 0 2px #3e63dd33; }
+  .delete-btn {
+    margin-left: 8px;
+    padding: 2px 8px;
+    border: none;
+    border-radius: 4px;
+    background: #e5484d;
+    color: #fff;
+    font-size: 12px;
+    cursor: pointer;
+  }
+
+  .unsorted { margin-top: 20px; }
+
+  .add {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 20px;
+  }
+  .add input {
+    flex: 1 1 200px;
+    min-width: 0;
+    padding: 10px;
+    font-size: 15px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+  }
+  .add button {
+    padding: 10px 18px;
+    font-size: 15px;
+    border: none;
+    border-radius: 6px;
+    background: #3e63dd;
+    color: #fff;
+    cursor: pointer;
+  }
+  .message { min-height: 20px; margin-top: 8px; color: #e5484d; font-size: 14px; }
+  .help { margin-top: 4px; color: #777; font-size: 13px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>내 영화 티어리스트</h1>
+
+  <div class="board" id="tiers"></div>
+
+  <div class="board unsorted" id="unsorted"></div>
+
+  <form class="add" id="addForm">
+    <input id="titleInput" type="text" placeholder="영화 제목을 입력하세요" autocomplete="off">
+    <button type="submit">추가</button>
+  </form>
+  <div class="message" id="message"></div>
+  <p class="help">카드를 끌어다 칸에 놓으면 옮겨집니다. 카드를 누르면 삭제 버튼이 나옵니다.</p>
+</div>
+
+<script>
+  const STORAGE_KEY = "movie-tierlist-v1";
+  const TIERS = ["S", "A", "B", "C"];
+  const UNSORTED = "미분류";
+  const INITIAL_MOVIES = [
+    "기생충", "인터스텔라", "라라랜드", "센과 치히로의 행방불명",
+    "어벤져스: 엔드게임", "범죄도시", "타이타닉", "토이 스토리"
+  ];
+
+  // 상태: 영화마다 { id, title, tier } 하나씩. tier가 하나뿐이라 한 영화는 한 칸에만 있다.
+  let movies = load();
+  let selectedId = null;
+
+  function initialState() {
+    return INITIAL_MOVIES.map((t, i) => ({ id: "m" + i, title: t, tier: UNSORTED }));
+  }
+
+  function load() {
+    try {
+      const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
+      if (Array.isArray(saved)) return saved;
+    } catch (e) {}
+    return initialState();
+  }
+
+  function save() {
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(movies)); } catch (e) {}
+  }
+
+  function makeRow(tier) {
+    const row = document.createElement("div");
+    row.className = "row";
+    row.dataset.tier = tier;
+
+    const label = document.createElement("div");
+    label.className = "label";
+    label.textContent = tier;
+
+    const zone = document.createElement("div");
+    zone.className = "zone";
+    zone.dataset.tier = tier;
+
+    zone.addEventListener("dragover", e => { e.preventDefault(); zone.classList.add("over"); });
+    zone.addEventListener("dragleave", () => zone.classList.remove("over"));
+    zone.addEventListener("drop", e => {
+      e.preventDefault();
+      zone.classList.remove("over");
+      const id = e.dataTransfer.getData("text/plain");
+      const movie = movies.find(m => m.id === id);
+      if (!movie) return;
+      // 같은 칸 안에서는 순서를 바꾸지 않고, 다른 칸으로 옮기면 그 칸 맨 뒤에 붙는다.
+      if (movie.tier !== tier) {
+        movies = movies.filter(m => m.id !== id);
+        movie.tier = tier;
+        movies.push(movie);
+        save();
+      }
+      render();
+    });
+
+    row.append(label, zone);
+    return row;
+  }
+
+  function makeCard(movie) {
+    const card = document.createElement("div");
+    card.className = "card" + (movie.id === selectedId ? " selected" : "");
+    card.draggable = true;
+    card.dataset.id = movie.id;
+
+    const text = document.createElement("span");
+    text.textContent = movie.title;
+    card.append(text);
+
+    if (movie.id === selectedId) {
+      const del = document.createElement("button");
+      del.className = "delete-btn";
+      del.type = "button";
+      del.textContent = "삭제";
+      del.addEventListener("click", e => {
+        e.stopPropagation();
+        movies = movies.filter(m => m.id !== movie.id);
+        selectedId = null;
+        save();
+        render();
+      });
+      card.append(del);
+    }
+
+    card.addEventListener("click", e => {
+      e.stopPropagation();
+      selectedId = selectedId === movie.id ? null : movie.id;
+      render();
+    });
+    card.addEventListener("dragstart", e => {
+      e.dataTransfer.setData("text/plain", movie.id);
+      card.classList.add("dragging");
+    });
+    card.addEventListener("dragend", () => card.classList.remove("dragging"));
+    return card;
+  }
+
+  function render() {
+    const tiersEl = document.getElementById("tiers");
+    const unsortedEl = document.getElementById("unsorted");
+    tiersEl.innerHTML = "";
+    unsortedEl.innerHTML = "";
+
+    TIERS.forEach(t => tiersEl.append(makeRow(t)));
+    unsortedEl.append(makeRow(UNSORTED));
+
+    movies.forEach(m => {
+      const zone = document.querySelector(`.zone[data-tier="${m.tier}"]`);
+      if (zone) zone.append(makeCard(m));
+    });
+  }
+
+  // 카드 바깥을 누르면 삭제 버튼을 닫는다.
+  document.addEventListener("click", () => {
+    if (selectedId !== null) { selectedId = null; render(); }
+  });
+
+  document.getElementById("addForm").addEventListener("submit", e => {
+    e.preventDefault();
+    const input = document.getElementById("titleInput");
+    const msg = document.getElementById("message");
+    const title = input.value.trim();
+
+    if (title === "") {
+      msg.textContent = "제목을 입력해 주세요";
+      return;
+    }
+    const exists = movies.some(m => m.title.replace(/\s+/g, "").toLowerCase() === title.replace(/\s+/g, "").toLowerCase());
+    if (exists) {
+      msg.textContent = "이미 있는 영화예요";
+      return;
+    }
+
+    movies.push({ id: "m" + Date.now(), title: title, tier: UNSORTED });
+    save();
+    msg.textContent = "";
+    input.value = "";
+    render();
+  });
+
+  render();
+</script>
+</body>
+</html>
