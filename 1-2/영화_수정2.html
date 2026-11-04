@@ -83,7 +83,7 @@
     .hero-title { margin: 0; font-size: clamp(32px, 4.6vw, 72px); font-weight: 900; line-height: 1.05; letter-spacing: -.03em; text-shadow: 2px 2px 8px rgba(0,0,0,.45); }
     .hero-meta { display: flex; align-items: center; gap: 10px; margin-top: 14px; color: #e5e5e5; font-size: 15px; }
     .age { padding: 0 6px; border: 1px solid #b3b3b3; color: #e5e5e5; font-size: 12px; }
-    .hero-overview { display: -webkit-box; margin: 16px 0 0; overflow: hidden; color: #fff; font-size: clamp(14px, 1.2vw, 18px); line-height: 1.5; text-shadow: 1px 1px 4px rgba(0,0,0,.6); -webkit-line-clamp: 3; -webkit-box-orient: vertical; }
+    .hero-overview { margin: 16px 0 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; color: #fff; font-size: clamp(14px, 1.2vw, 18px); line-height: 1.5; text-shadow: 1px 1px 4px rgba(0,0,0,.6); }
     .hero-actions { display: flex; gap: 12px; margin-top: 24px; }
     .btn { display: inline-flex; align-items: center; gap: 10px; height: 46px; padding: 0 26px 0 20px; border: 0; border-radius: var(--radius); font-size: 17px; font-weight: 700; white-space: nowrap; transition: background .2s, opacity .2s; }
     .btn svg { width: 26px; height: 26px; }
@@ -177,7 +177,6 @@
     @media (max-width: 800px) {
       .nav-links, .profile-name { display: none; }
       .hero-content { width: 80%; bottom: 26%; }
-      .hero-overview { display: none; }
       .search-box.open input { width: 150px; }
       .modal-body { grid-template-columns: 1fr; padding: 20px 20px 28px; }
       .login-card { padding: 36px 28px; }
@@ -424,10 +423,8 @@
         if (m.rating) meta.append(el("span", "age", `★ ${m.rating.toFixed(1)}`));
         const actions = el("div", "hero-actions");
         const play = el("button", "btn btn-play"); play.type = "button"; play.innerHTML = ICON.play + "<span>예고편 재생</span>";
-        const info = el("button", "btn btn-info"); info.type = "button"; info.innerHTML = ICON.info + "<span>상세 정보</span>";
         play.addEventListener("click", () => openModal(m, false));
-        info.addEventListener("click", () => openModal(m, false));
-        actions.append(play, info);
+        actions.append(play);
         c.append(eyebrow, el("h1", "hero-title", m.title), meta);
         if (m.overview) c.append(el("p", "hero-overview", m.overview));
         c.append(actions);
@@ -559,8 +556,8 @@
         if (token !== modalToken || !modal.open) return;
         if (key) {
           const f = el("iframe");
-          f.src = `https://www.youtube.com/embed/${key}?autoplay=1&rel=0&modestbranding=1`;
-          f.allow = "autoplay; encrypted-media; picture-in-picture; fullscreen";
+          f.src = `https://www.youtube.com/embed/${key}?rel=0&modestbranding=1`;
+          f.allow = "encrypted-media; picture-in-picture; fullscreen";
           f.allowFullscreen = true; f.title = `${m.title} 예고편`;
           media.append(f); media.classList.add("playing");
         } else media.append(el("div", "no-trailer", "예고편이 없어요"));
