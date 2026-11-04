@@ -83,12 +83,9 @@
     .hero-title { margin: 0; font-size: clamp(32px, 4.6vw, 72px); font-weight: 900; line-height: 1.05; letter-spacing: -.03em; text-shadow: 2px 2px 8px rgba(0,0,0,.45); }
     .hero-meta { display: flex; align-items: center; gap: 10px; margin-top: 14px; color: #e5e5e5; font-size: 15px; }
     .age { padding: 0 6px; border: 1px solid #b3b3b3; color: #e5e5e5; font-size: 12px; }
-    .hero-overview { margin: 16px 0 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; color: #fff; font-size: clamp(14px, 1.2vw, 18px); line-height: 1.5; text-shadow: 1px 1px 4px rgba(0,0,0,.6); }
     .hero-actions { display: flex; gap: 12px; margin-top: 24px; }
     .btn { display: inline-flex; align-items: center; gap: 10px; height: 46px; padding: 0 26px 0 20px; border: 0; border-radius: var(--radius); font-size: 17px; font-weight: 700; white-space: nowrap; transition: background .2s, opacity .2s; }
     .btn svg { width: 26px; height: 26px; }
-    .btn-play { background: #fff; color: #000; }
-    .btn-play:hover { background: rgba(255,255,255,.75); }
     .btn-info { background: rgba(109,109,110,.7); color: #fff; }
     .btn-info:hover { background: rgba(109,109,110,.4); }
     .hero-tag { position: absolute; right: 0; bottom: 34%; z-index: 2; display: flex; align-items: center; height: 38px; padding: 0 64px 0 12px; border-left: 3px solid #dcdcdc; background: rgba(51,51,51,.6); color: #fff; font-size: 16px; font-weight: 700; }
@@ -135,8 +132,7 @@
     .card .shade span { color: var(--text-dim); font-size: 12px; }
     .card .actions { display: flex; align-items: center; gap: 6px; margin-bottom: 4px; }
     .card .circle { display: grid; place-items: center; width: 28px; height: 28px; border: 1.5px solid rgba(255,255,255,.6); border-radius: 50%; background: rgba(42,42,42,.7); color: #fff; }
-    .card .circle.play { border-color: #fff; background: #fff; color: #000; }
-    .card .circle svg { width: 14px; height: 14px; }
+        .card .circle svg { width: 14px; height: 14px; }
     .card .shade .tier-tag { margin-left: auto; padding: 1px 6px; border: 1px solid rgba(255,255,255,.4); color: #fff; font-size: 11px; font-weight: 800; }
     .card:hover, .card:focus-visible { z-index: 5; transform: scale(1.12) translateY(-4%); box-shadow: 0 14px 30px rgba(0,0,0,.75); transition-delay: .25s; }
     .card:hover .shade, .card:focus-visible .shade { transition-delay: .25s; }
@@ -151,18 +147,21 @@
     dialog.modal[open] { animation: pop .28s var(--ease); }
     @keyframes pop { from { opacity: 0; transform: scale(.9); } to { opacity: 1; transform: none; } }
     .modal-media { position: relative; aspect-ratio: 16 / 9; background: #000 center / cover no-repeat; }
-    .modal-media iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
     .modal-media::after { content: ""; position: absolute; inset: auto 0 0; height: 30%; background: linear-gradient(180deg, transparent, #181818); pointer-events: none; }
-    .modal-media.playing::after { display: none; }
-    .modal-media .no-trailer { position: absolute; inset: 0; display: grid; place-items: center; background: linear-gradient(180deg, rgba(0,0,0,.2), rgba(24,24,24,1)); color: var(--text-dim); font-size: 15px; }
+    .modal-media.empty { display: grid; place-items: center; color: var(--text-faint); font-size: 15px; }
+    .yt-link { display: inline-flex; align-items: center; gap: 8px; height: 40px; margin-top: 16px; padding: 0 18px 0 14px; border-radius: var(--radius); background: var(--red); color: #fff; font-size: 15px; font-weight: 700; text-decoration: none; }
+    .yt-link:hover { background: var(--red-hover); }
+    .yt-link svg { width: 20px; height: 20px; }
+    .yt-none { margin-top: 16px; color: var(--text-faint); font-size: 14px; }
     .modal-close { position: absolute; top: 14px; right: 14px; z-index: 2; display: grid; place-items: center; width: 36px; height: 36px; padding: 0; border: 0; border-radius: 50%; background: #181818; color: #fff; }
     .modal-close svg { width: 20px; height: 20px; }
-    .modal-body { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); gap: 28px; padding: 24px 40px 36px; }
+    .modal-body { padding: 24px 40px 36px; }
     .modal-title { margin: 0; font-size: 28px; font-weight: 800; letter-spacing: -.02em; }
     .modal-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-top: 10px; color: var(--text-dim); font-size: 15px; }
     .modal-meta .match { color: #46d369; font-weight: 700; }
-    .modal-overview { margin: 16px 0 0; font-size: 15px; line-height: 1.6; }
-    .modal-side { color: var(--text-faint); font-size: 14px; line-height: 1.7; }
+    .modal-overview { margin: 18px 0 0; font-size: 16px; line-height: 1.7; word-break: keep-all; overflow-wrap: break-word; }
+    .modal-side { display: flex; flex-wrap: wrap; gap: 4px 24px; margin-top: 14px; color: var(--text-faint); font-size: 14px; line-height: 1.7; }
+    .modal-side:empty { display: none; }
     .modal-side b { color: #ddd; font-weight: 400; }
     .modal-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 20px; }
     .chip { height: 36px; padding: 0 14px; border: 1px solid rgba(255,255,255,.5); border-radius: var(--radius); background: rgba(42,42,42,.6); font-size: 14px; font-weight: 700; }
@@ -178,7 +177,7 @@
       .nav-links, .profile-name { display: none; }
       .hero-content { width: 80%; bottom: 26%; }
       .search-box.open input { width: 150px; }
-      .modal-body { grid-template-columns: 1fr; padding: 20px 20px 28px; }
+      .modal-body { padding: 20px 20px 28px; }
       .login-card { padding: 36px 28px; }
     }
   </style>
@@ -224,7 +223,7 @@
     <main class="rows" id="rows"></main>
   </div>
 
-  <!-- 예고편 팝업 -->
+  <!-- 상세 정보 팝업 -->
   <dialog class="modal" id="modal" aria-labelledby="modal-title">
     <div class="modal-media" id="modal-media">
       <button class="modal-close" id="modal-close" type="button" aria-label="닫기">
@@ -232,14 +231,13 @@
       </button>
     </div>
     <div class="modal-body">
-      <div>
-        <h2 class="modal-title" id="modal-title"></h2>
-        <div class="modal-meta" id="modal-meta"></div>
-        <p class="modal-overview" id="modal-overview"></p>
-        <div class="modal-actions" id="modal-actions"></div>
-        <p class="modal-hint" id="modal-hint"></p>
-      </div>
+      <h2 class="modal-title" id="modal-title"></h2>
+      <div class="modal-meta" id="modal-meta"></div>
+      <div id="modal-yt"></div>
+      <p class="modal-overview" id="modal-overview"></p>
       <div class="modal-side" id="modal-side"></div>
+      <div class="modal-actions" id="modal-actions"></div>
+      <p class="modal-hint" id="modal-hint"></p>
     </div>
   </dialog>
 
@@ -422,12 +420,10 @@
         if (m.year) meta.append(el("span", null, m.year));
         if (m.rating) meta.append(el("span", "age", `★ ${m.rating.toFixed(1)}`));
         const actions = el("div", "hero-actions");
-        const play = el("button", "btn btn-play"); play.type = "button"; play.innerHTML = ICON.play + "<span>예고편 재생</span>";
-        play.addEventListener("click", () => openModal(m, false));
-        actions.append(play);
-        c.append(eyebrow, el("h1", "hero-title", m.title), meta);
-        if (m.overview) c.append(el("p", "hero-overview", m.overview));
-        c.append(actions);
+        const info = el("button", "btn btn-info"); info.type = "button"; info.innerHTML = ICON.info + "<span>상세 정보</span>";
+        info.addEventListener("click", () => openModal(m));
+        actions.append(info);
+        c.append(eyebrow, el("h1", "hero-title", m.title), meta, actions);
         hero.append(c, el("div", "hero-tag", m.tier === "미분류" ? "미분류" : `${m.tier} 등급`));
       }
 
@@ -496,7 +492,7 @@
 
       function cardFor(m, opt) {
         const card = el("button", "card"); card.type = "button";
-        card.setAttribute("aria-label", `${m.title}${m.year ? ", " + m.year : ""} 예고편 보기`);
+        card.setAttribute("aria-label", `${m.title}${m.year ? ", " + m.year : ""} 상세 정보`);
         if (m.poster) {
           const img = el("img"); img.src = m.poster; img.alt = ""; img.loading = "lazy"; img.referrerPolicy = "no-referrer";
           img.addEventListener("error", () => img.replaceWith(el("div", "fallback", m.title)));
@@ -504,7 +500,6 @@
         } else card.append(el("div", "fallback", m.title));
         const shade = el("div", "shade");
         const acts = el("div", "actions");
-        const pc = el("span", "circle play"); pc.innerHTML = ICON.play; acts.append(pc);
         const sc = el("span", "circle"); sc.innerHTML = opt.search && !movies.some(x => x.id === m.id) ? ICON.plus : ICON.down; acts.append(sc);
         const saved = movies.find(x => x.id === m.id);
         if (saved) acts.append(el("span", "tier-tag", saved.tier));
@@ -512,7 +507,7 @@
         shade.append(el("strong", null, m.title), el("span", null, [m.year, opt.search ? (movies.some(x => x.id === m.id) ? "추가됨" : "클릭해서 추가") : null].filter(Boolean).join(" · ")));
         card.append(shade);
         if (opt.tier === "S") { const idx = movies.filter(x => x.tier === "S").indexOf(m); if (idx > -1 && idx < 10) card.append(el("span", "rank", "TOP " + (idx + 1))); }
-        card.addEventListener("click", () => openModal(m, !!opt.search));
+        card.addEventListener("click", () => openModal(m));
         if (!opt.search) {
           card.draggable = true;
           card.addEventListener("dragstart", e => { draggedId = m.id; e.dataTransfer.effectAllowed = "move"; e.dataTransfer.setData("text/plain", m.id); card.classList.add("dragging"); });
@@ -521,14 +516,18 @@
         return card;
       }
 
-      // ---------- 예고편 팝업 ----------
+      // ---------- 상세 정보 팝업 ----------
       const modal = $("modal");
       let modalToken = 0;
-      async function openModal(m, fromSearch) {
+      async function openModal(m) {
         const token = ++modalToken;
         const media = $("modal-media");
-        media.querySelectorAll("iframe, .no-trailer").forEach(n => n.remove()); media.classList.remove("playing");
-        media.style.backgroundImage = m.backdrop ? `url("${m.backdrop}")` : (m.poster ? `url("${m.poster.replace("/w342/", "/w780/")}")` : "none");
+        const image = m.backdrop || (m.poster ? m.poster.replace("/w342/", "/w780/") : "");
+        media.style.backgroundImage = image ? `url("${image}")` : "none";
+        media.classList.toggle("empty", !image);
+        media.querySelectorAll(".empty-text").forEach(n => n.remove());
+        if (!image) media.append(el("span", "empty-text", "대표 이미지가 없어요"));
+        const yt = $("modal-yt"); yt.innerHTML = "";
         $("modal-title").textContent = m.title;
         const meta = $("modal-meta"); meta.innerHTML = "";
         if (m.rating) meta.append(el("span", "match", `평점 ${m.rating.toFixed(1)}`));
@@ -543,24 +542,25 @@
         if (!modal.open) modal.showModal();
 
         const id = tmdbId(m);
-        if (!id) { media.append(el("div", "no-trailer", "예고편이 없어요")); return; }
         let key = null;
-        try {
-          for (const language of ["ko-KR", "en-US"]) {
-            const v = await tmdb(`/movie/${id}/videos`, { language });
-            const yt = (v.results || []).filter(x => x.site === "YouTube");
-            const pick = yt.find(x => x.type === "Trailer" && x.official) || yt.find(x => x.type === "Trailer") || yt.find(x => x.type === "Teaser") || yt[0];
-            if (pick) { key = pick.key; break; }
-          }
-        } catch {}
+        if (id) {
+          try {
+            for (const language of ["ko-KR", "en-US"]) {
+              const v = await tmdb(`/movie/${id}/videos`, { language });
+              const list = (v.results || []).filter(x => x.site === "YouTube");
+              const pick = list.find(x => x.type === "Trailer" && x.official) || list.find(x => x.type === "Trailer") || list.find(x => x.type === "Teaser") || list[0];
+              if (pick) { key = pick.key; break; }
+            }
+          } catch {}
+        }
         if (token !== modalToken || !modal.open) return;
         if (key) {
-          const f = el("iframe");
-          f.src = `https://www.youtube.com/embed/${key}?rel=0&modestbranding=1`;
-          f.allow = "encrypted-media; picture-in-picture; fullscreen";
-          f.allowFullscreen = true; f.title = `${m.title} 예고편`;
-          media.append(f); media.classList.add("playing");
-        } else media.append(el("div", "no-trailer", "예고편이 없어요"));
+          const a = el("a", "yt-link");
+          a.href = `https://www.youtube.com/watch?v=${encodeURIComponent(key)}`;
+          a.target = "_blank"; a.rel = "noopener noreferrer";
+          a.innerHTML = ICON.play + "<span>유튜브에서 예고편 보기</span>";
+          yt.append(a);
+        } else yt.append(el("p", "yt-none", "유튜브 예고편이 없어요"));
       }
 
       function renderModalActions(m) {
@@ -584,10 +584,10 @@
         $("modal-hint").textContent = "등급 버튼을 누르거나, 홈 화면에서 포스터를 다른 줄로 끌어다 놓아도 옮겨집니다.";
       }
 
-      function closeModal() { modalToken++; $("modal-media").querySelectorAll("iframe").forEach(f => f.remove()); if (modal.open) modal.close(); }
+      function closeModal() { modalToken++; if (modal.open) modal.close(); }
       $("modal-close").addEventListener("click", closeModal);
       modal.addEventListener("click", e => { if (e.target === modal) closeModal(); });
-      modal.addEventListener("close", () => { modalToken++; $("modal-media").querySelectorAll("iframe").forEach(f => f.remove()); });
+      modal.addEventListener("close", () => { modalToken++; });
 
       // ---------- 기타 ----------
       const nav = $("nav");
