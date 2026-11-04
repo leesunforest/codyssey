@@ -163,6 +163,7 @@
     .modal-side { display: flex; flex-wrap: wrap; gap: 4px 24px; margin-top: 14px; color: var(--text-faint); font-size: 14px; line-height: 1.7; }
     .modal-side:empty { display: none; }
     .modal-side b { color: #ddd; font-weight: 400; }
+    .modal-actions:empty, .modal-hint:empty { display: none; }
     .modal-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 20px; }
     .chip { height: 36px; padding: 0 14px; border: 1px solid rgba(255,255,255,.5); border-radius: var(--radius); background: rgba(42,42,42,.6); font-size: 14px; font-weight: 700; }
     .chip:hover { border-color: #fff; background: rgba(255,255,255,.1); }
@@ -564,7 +565,7 @@
       }
 
       function renderModalActions(m) {
-        const box = $("modal-actions"); box.innerHTML = "";
+        const box = $("modal-actions"); box.innerHTML = ""; $("modal-hint").textContent = "";
         const saved = movies.find(x => x.id === m.id);
         if (!saved) {
           const add = el("button", "chip add", "+ 내 등급표에 추가"); add.type = "button";
@@ -573,15 +574,7 @@
           $("modal-hint").textContent = "추가하면 '아직 정하지 않은 영화' 줄에 들어갑니다.";
           return;
         }
-        TIERS.forEach(t => {
-          const b = el("button", "chip" + (saved.tier === t ? " on" : ""), t); b.type = "button";
-          b.addEventListener("click", () => { saved.tier = t; save(); renderAll(); renderModalActions(m); });
-          box.append(b);
-        });
-        const del = el("button", "chip danger", "삭제"); del.type = "button";
-        del.addEventListener("click", () => { movies = movies.filter(x => x.id !== m.id); save(); renderAll(); closeModal(); toast(`'${m.title}'을(를) 삭제했어요`); });
-        box.append(del);
-        $("modal-hint").textContent = "등급 버튼을 누르거나, 홈 화면에서 포스터를 다른 줄로 끌어다 놓아도 옮겨집니다.";
+        $("modal-hint").textContent = "";
       }
 
       function closeModal() { modalToken++; if (modal.open) modal.close(); }
