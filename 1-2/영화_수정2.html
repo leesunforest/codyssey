@@ -164,6 +164,9 @@
     .modal-side:empty { display: none; }
     .modal-side b { color: #ddd; font-weight: 400; }
     .modal-actions:empty, .modal-hint:empty { display: none; }
+    .modal-actions.end { justify-content: flex-end; margin-top: 28px; }
+    .btn-delete { height: 38px; padding: 0 22px; border: 0; border-radius: var(--radius); background: #fff; color: #000; font-size: 15px; font-weight: 700; }
+    .btn-delete:hover { background: rgba(255,255,255,.75); }
     .modal-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 20px; }
     .chip { height: 36px; padding: 0 14px; border: 1px solid rgba(255,255,255,.5); border-radius: var(--radius); background: rgba(42,42,42,.6); font-size: 14px; font-weight: 700; }
     .chip:hover { border-color: #fff; background: rgba(255,255,255,.1); }
@@ -565,7 +568,7 @@
       }
 
       function renderModalActions(m) {
-        const box = $("modal-actions"); box.innerHTML = ""; $("modal-hint").textContent = "";
+        const box = $("modal-actions"); box.innerHTML = ""; box.classList.remove("end"); $("modal-hint").textContent = "";
         const saved = movies.find(x => x.id === m.id);
         if (!saved) {
           const add = el("button", "chip add", "+ 내 등급표에 추가"); add.type = "button";
@@ -574,7 +577,10 @@
           $("modal-hint").textContent = "추가하면 '아직 정하지 않은 영화' 줄에 들어갑니다.";
           return;
         }
-        $("modal-hint").textContent = "";
+        const del = el("button", "btn-delete", "삭제"); del.type = "button";
+        del.addEventListener("click", () => { movies = movies.filter(x => x.id !== m.id); save(); renderAll(); closeModal(); toast(`'${m.title}'을(를) 삭제했어요`); });
+        box.classList.add("end");
+        box.append(del);
       }
 
       function closeModal() { modalToken++; if (modal.open) modal.close(); }
