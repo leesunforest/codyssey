@@ -198,8 +198,8 @@
 
   <!-- API 키 입력 -->
   <dialog id="key-dialog">
-    <h2 class="headline-small">KMDb API 키</h2>
-    <p class="body-medium" style="margin-top:16px">한국영상자료원 KMDb에서 받은 서비스 키를 넣어 주세요. 이 브라우저에만 저장됩니다.</p>
+    <h2 class="headline-small">포스터정보 API 키</h2>
+    <p class="body-medium" style="margin-top:16px">문화공공데이터광장(한국영상자료원 포스터정보)에서 받은 서비스 키를 넣어 주세요. 이 브라우저에만 저장됩니다.</p>
     <form method="dialog" id="key-form">
       <div class="field">
         <label for="key-input">서비스 키</label>
@@ -217,11 +217,11 @@
   <script>
     (() => {
       const TIERS = ["S", "A", "B", "C", "미분류"];
-      const API_URL = "https://api.koreafilm.or.kr/openapi-data2/wisenut/search_api/search_json2.jsp";
+      const API_URL = "http://api.kcisa.kr/openapi/service/rest/meta/KFApost"; // 문화공공데이터광장 한국영상자료원 포스터정보
       const DEFAULT_SERVICE_KEY = ""; // 여기에 키를 직접 넣어 두어도 됩니다.
       const USERS_KEY = "tierlist.users";
       const DATA_PREFIX = "tierlist.data.";
-      const API_KEY_STORE = "tierlist.kmdbKey";
+      const API_KEY_STORE = "tierlist.kcisaKey";
       const SESSION_KEY = "tierlist.currentUser";
 
       const $ = id => document.getElementById(id);
@@ -303,23 +303,26 @@
         $("results").innerHTML = "";
         if (!query) { msg.textContent = "제목을 입력해 주세요"; return; }
         const key = getKey();
-        if (!key) { msg.textContent = "먼저 오른쪽 위 [API 키]에 KMDb 서비스 키를 넣어 주세요"; return; }
+        if (!key) { msg.textContent = "먼저 오른쪽 위 [API 키]에 서비스 키를 넣어 주세요"; return; }
         msg.textContent = "";
         $("search-button").disabled = true;
         $("search-button").textContent = "검색 중…";
         try {
-          const params = new URLSearchParams({ collection: "kmdb_new2", detail: "Y", title: query, listCount: "20", ServiceKey: key });
+          const params = new URLSearchParams({ serviceKey: key, numOfRows: "100", pageNo: "1", keyword: query });
           const res = await fetch(`${API_URL}?${params}`);
           if (!res.ok) throw new Error("HTTP " + res.status);
-          const data = await res.json();
-          const list = (data && data.Data && data.Data[0] && data.Data[0].Result) || [];
-          lastResults = list.map(item => ({
-            id: item.DOCID || `${item.movieId}${item.movieSeq}`,
-            title: cleanTitle(item.title),
-            year: item.prodYear || "",
-            director: (item.directors && item.directors.director && item.directors.director[0] && item.directors.director[0].directorNm) || "",
-            poster: String(item.posters || "").split("|").map(s => s.trim()).filter(Boolean)[0] || ""
-          })).filter(m => m.title);
+          const items = parseItems(await res.text());
+          const q = normalize(query);
+          const seen = new Set();
+          lastResults = items
+            .map(item => ({
+              id: item.url || item.localId || `${item.title}|${item.poster}`,
+              title: cleanTitle(item.title),
+              year: (String(item.regDate || item.temporalCoverage || "").match(/\d{4}/) || [""])[0],
+              director: cleanTitle(item.creator || ""),
+              poster: item.poster
+            }))
+            .filter(m => m.title && normalize(m.title).includes(q) && !seen.has(m.id) && seen.add(m.id));
           if (!lastResults.length) { msg.textContent = "검색 결과가 없어요"; return; }
           renderResults();
         } catch (error) {
@@ -329,6 +332,30 @@
           $("search-button").textContent = "검색";
         }
       });
+
+      // 응답이 XML이든 JSON이든 item 목록으로 바꿉니다.
+      function parseItems(text) {
+        const pick = o => ({
+          title: o.title, creator: o.creator, regDate: o.regDate, temporalCoverage: o.temporalCoverage,
+          url: o.url, localId: o.localId,
+          poster: String(o.referenceIdentifier || o.imageObject || o.image || "").split("|").map(x => x.trim()).filter(Boolean)[0] || ""
+        });
+        const trimmed = text.trim();
+        if (trimmed.startsWith("{")) {
+          const data = JSON.parse(trimmed);
+          let list = data?.response?.body?.items?.item ?? [];
+          if (!Array.isArray(list)) list = [list];
+          return list.map(pick);
+        }
+        const doc = new DOMParser().parseFromString(trimmed, "text/xml");
+        const code = doc.querySelector("resultCode, returnReasonCode")?.textContent.trim();
+        if (code && code !== "00" && code !== "0000") throw new Error("API " + code);
+        return [...doc.querySelectorAll("item")].map(el => {
+          const o = {};
+          [...el.children].forEach(c => { o[c.tagName] = c.textContent.trim(); });
+          return pick(o);
+        });
+      }
 
       function posterEl(src, title) {
         const box = document.createElement("div");
