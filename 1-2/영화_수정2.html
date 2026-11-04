@@ -214,11 +214,13 @@
 
   <div class="snackbar body-medium" id="snackbar" role="status" hidden></div>
 
+  <!-- API 키는 같은 폴더의 config.js에 넣습니다. (GitHub에는 올리지 않음) -->
+  <script src="config.js"></script>
   <script>
     (() => {
       const TIERS = ["S", "A", "B", "C", "미분류"];
       const API_URL = "http://api.kcisa.kr/openapi/service/rest/meta/KFApost"; // 문화공공데이터광장 한국영상자료원 포스터정보
-      const DEFAULT_SERVICE_KEY = ""; // 여기에 키를 직접 넣어 두어도 됩니다.
+      const CONFIG_KEY = (window.TIERLIST_CONFIG && window.TIERLIST_CONFIG.serviceKey || "").trim();
       const USERS_KEY = "tierlist.users";
       const DATA_PREFIX = "tierlist.data.";
       const API_KEY_STORE = "tierlist.kcisaKey";
@@ -286,7 +288,8 @@
       const save = () => { if (user) store.set(DATA_PREFIX + user, movies); };
 
       // ---------- API 키 ----------
-      const getKey = () => store.get(API_KEY_STORE, "") || DEFAULT_SERVICE_KEY;
+      const getKey = () => CONFIG_KEY || store.get(API_KEY_STORE, "");
+      $("key-button").hidden = Boolean(CONFIG_KEY); // config.js에 키가 있으면 화면에서 숨김
       $("key-button").addEventListener("click", () => { $("key-input").value = getKey(); $("key-dialog").showModal(); });
       $("key-dialog").addEventListener("close", () => {
         if ($("key-dialog").returnValue === "save") { store.set(API_KEY_STORE, $("key-input").value.trim()); snack("API 키를 저장했어요"); }
