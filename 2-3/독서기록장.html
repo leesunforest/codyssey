@@ -197,9 +197,11 @@
   .book-stars { color: #ffb400; font-size: .9rem; letter-spacing: 1px; }
   .book-review { color: var(--sub); font-size: .88rem; word-break: break-word; }
   .book-actions { display: flex; gap: 12px; margin-top: 2px; }
-  .btn-text { background: none; border: 0; padding: 2px 0; font-size: .85rem; color: var(--faint); cursor: pointer; }
-  .btn-text:hover { color: var(--ink); text-decoration: underline; }
-  .btn-text.danger:hover { color: var(--error); }
+  .book-actions { gap: 6px; margin-top: 6px; }
+  .btn-text { flex: 1; background: #fff; border: 1px solid #d4d5d9; border-radius: 8px; padding: 6px 0; font-size: .88rem; font-weight: 600; color: var(--ink); cursor: pointer; }
+  .btn-text:hover { background: var(--soft); border-color: var(--ink); }
+  .btn-text.danger { color: var(--error); border-color: #f0c4c0; }
+  .btn-text.danger:hover { background: #fff5f4; border-color: var(--error); }
   .list-empty { color: var(--sub); margin: 0; padding: 32px 0; text-align: center; background: var(--soft); border-radius: 12px; }
 
   @media (prefers-reduced-motion: reduce) { .bar > span { transition: none; } }
