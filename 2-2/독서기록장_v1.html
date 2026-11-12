@@ -6,322 +6,259 @@
 <title>나의 독서 기록장</title>
 <style>
   /*
-    디자인: 작은 도서관.
-    - 올해 목표 = 책이 꽂혀 가는 나무 책장 한 칸
-    - 월별 읽은 권수 = 달마다 한 칸씩, 그달 읽은 책 등(장르 색)이 꽂힌 책장
-    - 기록 = 파란 줄과 빨간 머리줄이 있는 도서 카드, 다 읽은 날짜는 고무 도장
-    - 달 구분 = 카드 서랍의 색인 탭
+    디자인: 전자책 앱의 '내 서재' 화면처럼.
+    - 흰 바탕, 굵은 섹션 제목, 오른쪽에 보조 조작
+    - 기록은 장르 색 표지 그리드 (표지 아래 제목·저자)
+    - 올해 목표·월별 권수는 리포트형 가로 막대
   */
   :root {
-    --wall: #e7ebe4;
-    --ink: #23262b;
-    --muted: #5d6460;
-    --card: #fffefa;
-    --rule: #c7d5e6;
-    --redline: #d0574d;
-    --wood: #7a5536;
-    --wood-dark: #553a24;
-    --wood-light: #a47a52;
-    --stamp: #4a4f9c;
-    --focus: #2f6fb0;
-    --error: #b3362b;
+    --bg: #ffffff;
+    --ink: #1b1c1f;
+    --sub: #6b6e75;
+    --faint: #a3a6ad;
+    --line: #ececee;
+    --soft: #f5f5f7;
+    --accent: #ff5a4e;
+    --accent-weak: #ffe6e3;
+    --error: #d93025;
 
-    /* 장르별 책등 색 (헝겊 장정 색) */
-    --g-novel: #8c3b3b;
-    --g-essay: #c98a3a;
-    --g-human: #3f5f7f;
-    --g-econ: #2f6b55;
-    --g-self: #b6604a;
-    --g-sci: #4b4f8c;
-    --g-etc: #7b7468;
+    /* 장르별 표지 색 */
+    --g-novel: #e85d4a;
+    --g-essay: #f0ad3c;
+    --g-human: #3d6fd8;
+    --g-econ: #2fa36b;
+    --g-self: #8a5cd6;
+    --g-sci: #1f9bb8;
+    --g-etc: #8b8f98;
 
-    --serif: "AppleMyungjo", "Nanum Myeongjo", "Noto Serif KR", "Batang", "바탕", serif;
-    --sans: "Apple SD Gothic Neo", "Malgun Gothic", "맑은 고딕", "Noto Sans KR", sans-serif;
-    --stamp-font: "Courier New", "Courier", monospace;
+    --font: "Pretendard", "Apple SD Gothic Neo", "Malgun Gothic", "맑은 고딕", "Noto Sans KR", sans-serif;
     color-scheme: light;
   }
   * { box-sizing: border-box; }
   body {
     margin: 0;
-    background: var(--wall);
+    background: var(--bg);
     color: var(--ink);
-    font-family: var(--sans);
+    font-family: var(--font);
     font-size: 16px;
-    line-height: 1.6;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
   }
   main {
-    max-width: 1040px;
+    max-width: 1080px;
     margin: 0 auto;
-    padding: 32px 16px 56px;
+    padding: 36px 20px 64px;
     display: grid;
-    gap: 28px;
+    gap: 56px;
   }
-  h1, h2, h3 { font-family: var(--serif); font-weight: 700; margin: 0; }
-  h1 { font-size: 2.1rem; letter-spacing: -0.01em; line-height: 1.25; }
-  h2 { font-size: 1.25rem; }
-  .lede { margin: 6px 0 0; color: var(--muted); }
-
+  @media (max-width: 480px) { main { padding: 24px 16px 48px; gap: 44px; } }
+  h1, h2, h3 { margin: 0; }
+  h1 { font-size: 1.9rem; font-weight: 800; letter-spacing: -0.02em; }
+  h2 { font-size: 1.5rem; font-weight: 800; letter-spacing: -0.02em; }
+  .lede { margin: 6px 0 0; color: var(--sub); }
   button, input, select { font: inherit; color: inherit; }
-  :focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+  :focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
 
-  /* ── 책장 공통 ─────────────────────────────── */
-  .shelf-plank {
-    height: 14px;
-    background: linear-gradient(var(--wood-light), var(--wood) 40%, var(--wood-dark));
-    border-radius: 2px;
-    box-shadow: 0 6px 8px -6px rgba(60, 40, 20, .45);
-  }
+  .sec { display: grid; gap: 18px; min-width: 0; }
+  .sec-head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; gap: 10px 16px; }
+  .sec-sub { margin: 4px 0 0; color: var(--sub); font-size: .95rem; }
 
-  /* ── 올해 목표: 채워지는 책장 한 칸 ─────────── */
-  .goal { display: grid; gap: 14px; }
-  .goal-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 8px 16px; }
-  .goal-row { display: flex; align-items: center; gap: 10px; }
-  .goal-row label { font-weight: 600; font-size: .95rem; }
-  .goal-row input {
-    width: 90px;
-    padding: 6px 10px;
-    border: 1px solid #b9bfb6;
-    border-radius: 4px;
-    background: var(--card);
-  }
-  .goal-year { color: var(--muted); font-size: .9rem; }
-  .goal-text { margin: 0; font-family: var(--serif); font-size: 1.5rem; font-weight: 700; }
-  .goal-text.empty { font-family: var(--sans); font-size: 1rem; font-weight: 400; color: var(--muted); }
-  .goal-shelf {
-    position: relative;
-    height: 64px;
-    background: rgba(85, 58, 36, .08);
-    border: 1px solid rgba(85, 58, 36, .18);
-    border-bottom: 0;
-    border-radius: 3px 3px 0 0;
-    overflow: hidden;
-  }
-  .bar { height: 100%; }
-  .bar > span {
-    display: block;
-    height: 100%;
-    width: 0;
-    background:
-      repeating-linear-gradient(90deg,
-        var(--g-novel) 0 14px, transparent 14px 16px,
-        var(--g-human) 16px 27px, transparent 27px 29px,
-        var(--g-essay) 29px 45px, transparent 45px 47px,
-        var(--g-econ) 47px 59px, transparent 59px 61px,
-        var(--g-sci) 61px 76px, transparent 76px 78px,
-        var(--g-self) 78px 91px, transparent 91px 93px);
-    transition: width .5s ease;
-  }
-
-  /* ── 두 칸 배치 ─────────────────────────────── */
-  .desk { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 28px; align-items: start; }
-  @media (max-width: 760px) { .desk { grid-template-columns: minmax(0, 1fr); } }
-
-  /* ── 도서 카드 (입력란) ─────────────────────── */
-  .index-card {
-    position: relative;
-    background: var(--card);
-    padding: 18px 20px 20px;
-    border-radius: 3px;
-    box-shadow: 0 1px 0 rgba(0,0,0,.06), 0 10px 22px -14px rgba(40, 50, 40, .5);
-  }
-  .index-card::before {
-    content: "";
-    position: absolute;
-    left: 0; right: 0; top: 56px;
-    height: 2px;
-    background: var(--redline);
-    opacity: .7;
-  }
-  .index-card h2 { margin-bottom: 22px; }
-
-  form { display: grid; gap: 12px; }
-  label { display: grid; gap: 2px; font-weight: 600; font-size: .9rem; }
-  .field {
+  .input {
     width: 100%;
-    padding: 6px 2px;
-    border: 0;
-    border-bottom: 1.5px solid #8e9a8c;
-    border-radius: 0;
-    background: transparent;
-    font-family: var(--serif);
-    font-size: 1.05rem;
+    padding: 11px 14px;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    background: var(--soft);
+    font-size: 1rem;
   }
-  .field:focus-visible { outline: none; border-bottom-color: var(--focus); box-shadow: 0 2px 0 var(--focus); }
-  select.field { padding-right: 4px; cursor: pointer; }
-  .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-  @media (max-width: 440px) { .field-row { grid-template-columns: 1fr; } }
+  .input:focus-visible { outline: none; border-color: var(--ink); background: #fff; }
+  select.input { cursor: pointer; }
+
+  /* ── 올해 목표 (리포트형 막대) ─────────────── */
+  .goal-input-wrap { display: flex; align-items: center; gap: 8px; color: var(--sub); font-size: .95rem; }
+  .goal-input-wrap input { width: 84px; padding: 7px 10px; text-align: right; }
+  .goal-text { margin: 0; font-size: 1.15rem; font-weight: 700; }
+  .goal-text.empty { font-weight: 400; color: var(--sub); }
+  .report { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 12px 14px; }
+  .report .who { color: var(--sub); font-size: .95rem; }
+  .track { height: 28px; background: var(--soft); border-radius: 8px; overflow: hidden; }
+  .bar { height: 100%; }
+  .bar > span { display: block; height: 100%; width: 0; background: var(--accent); border-radius: 8px; transition: width .45s ease; }
+  .track.full > span { display: block; height: 100%; width: 100%; background: #d4d5d9; border-radius: 8px; }
+  .report .val { font-weight: 800; font-size: 1.05rem; min-width: 3.2em; text-align: right; font-variant-numeric: tabular-nums; }
+  .report .val.mine { color: var(--accent); }
+  .report .val.target { color: var(--faint); }
+
+  /* ── 책 기록하기 ─────────────────────────── */
+  .form-card { background: var(--soft); border-radius: 16px; padding: 24px; }
+  @media (max-width: 480px) { .form-card { padding: 18px; } }
+  form { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px 20px; }
+  @media (max-width: 640px) { form { grid-template-columns: minmax(0, 1fr); } }
+  .form-card .input { background: #fff; }
+  label, legend { display: grid; gap: 6px; font-size: .9rem; font-weight: 600; color: var(--sub); }
+  .span-2 { grid-column: 1 / -1; }
   fieldset { border: 0; padding: 0; margin: 0; }
-  legend { font-weight: 600; font-size: .9rem; padding: 0; }
+  legend { padding: 0; margin-bottom: 6px; }
   .stars { display: flex; gap: 2px; }
   .stars button {
-    font-size: 1.8rem;
+    font-size: 1.9rem;
     line-height: 1;
     background: none;
     border: 0;
-    padding: 2px 3px;
+    padding: 0 2px;
     cursor: pointer;
-    color: #cdd2c9;
-    transition: transform .12s;
+    color: #d6d7db;
   }
-  .stars button:hover { transform: translateY(-2px); }
-  .stars button.on { color: #c08a1e; }
-  .actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 4px; }
-  .btn-primary, .btn-secondary {
-    border-radius: 4px;
-    cursor: pointer;
-    padding: 10px 18px;
-    font-weight: 700;
-  }
-  .btn-primary { background: var(--wood-dark); color: #fff; border: 0; }
-  .btn-primary:hover { background: var(--wood); }
-  .btn-secondary { background: transparent; border: 1.5px solid var(--wood-dark); color: var(--wood-dark); }
-  .message { min-height: 1.6em; margin: 0; font-size: .92rem; }
+  .stars button.on { color: #ffb400; }
+  .form-foot { grid-column: 1 / -1; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; }
+  .message { margin: 0; min-height: 1.5em; font-size: .95rem; }
   .message.error { color: var(--error); font-weight: 600; }
-  .message.ok { color: var(--g-econ); }
+  .message.ok { color: var(--g-econ); font-weight: 600; }
+  .actions { display: flex; gap: 8px; margin-left: auto; }
+  .btn-primary, .btn-secondary { border-radius: 10px; padding: 12px 22px; font-weight: 700; cursor: pointer; }
+  .btn-primary { background: var(--ink); color: #fff; border: 0; }
+  .btn-primary:hover { background: #33353a; }
+  .btn-secondary { background: #fff; border: 1px solid var(--line); }
 
-  /* ── 월별 읽은 권수: 달마다 책장 한 칸 ───────── */
-  .monthly-box h2 { margin-bottom: 14px; }
-  .monthly { list-style: none; margin: 0; padding: 0; display: grid; gap: 16px; }
-  .monthly li { display: grid; grid-template-columns: 6.5em minmax(0, 1fr) 3em; align-items: end; gap: 10px; }
-  .month-name { font-family: var(--serif); font-weight: 700; font-size: .95rem; padding-bottom: 8px; line-height: 1.3; }
-  .month-shelf { min-width: 0; }
-  .spines { display: flex; align-items: flex-end; gap: 2px; height: 46px; padding-left: 4px; overflow: hidden; }
-  .spine {
-    width: 11px;
-    flex: none;
-    border-radius: 2px 2px 0 0;
-    box-shadow: inset -2px 0 0 rgba(0,0,0,.18), inset 0 4px 0 rgba(255,255,255,.18);
+  /* ── 월별 읽은 권수 (가로 막대) ───────────── */
+  .monthly { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+  .monthly li { display: grid; grid-template-columns: 7.5em minmax(0, 1fr) 3.2em; align-items: center; gap: 14px; }
+  .month-name { color: var(--sub); font-size: .95rem; }
+  .month-bar { height: 22px; background: var(--soft); border-radius: 6px; overflow: hidden; }
+  .month-bar > span { display: block; height: 100%; background: #c9cbd0; border-radius: 6px; }
+  .monthly li:first-child .month-bar > span { background: var(--accent); }
+  .month-count { font-weight: 800; text-align: right; font-variant-numeric: tabular-nums; }
+  .empty-note { color: var(--sub); }
+
+  /* ── 기록 목록 (표지 그리드) ─────────────── */
+  .filters { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); gap: 10px; width: min(100%, 480px); }
+  .filters label { gap: 0; }
+  .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  #list { display: grid; gap: 32px; min-width: 0; }
+  @media (max-width: 480px) { .filters { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); } }
+  .shelf-row { display: grid; gap: 14px; min-width: 0; }
+  @media (min-width: 761px) {
+    #list { gap: 0; }
+    .shelf-row { grid-template-columns: 8em minmax(0, 1fr); gap: 20px; padding: 22px 0 12px; border-top: 1px solid var(--line); }
+    .shelf-row:first-child { border-top: 0; padding-top: 4px; }
+    .month-title { flex-direction: column; gap: 2px; }
   }
-  .month-count { font-family: var(--serif); font-weight: 700; font-size: 1.1rem; text-align: right; padding-bottom: 8px; }
-  .monthly .empty-note { display: block; color: var(--muted); font-size: .95rem; }
-
-  /* ── 기록 목록: 카드 서랍 ───────────────────── */
-  .catalog { display: grid; gap: 14px; }
-  .catalog-head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: end; gap: 12px; }
-  .filters { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); gap: 12px; }
-  @media (max-width: 480px) { .filters { grid-template-columns: minmax(0, 1fr); } }
-  .filters .field { background: var(--card); border: 1px solid #b9bfb6; border-radius: 4px; padding: 8px 10px; font-family: var(--sans); font-size: 1rem; }
-
-  #list { display: grid; grid-template-columns: minmax(0, 1fr); gap: 14px; max-width: 720px; }
-  .month-title {
-    grid-column: 1 / -1;
-    justify-self: start;
-    margin: 14px 0 -4px;
-    padding: 4px 16px 2px;
-    background: #d9cdb4;
-    border-radius: 8px 8px 0 0;
-    font-size: .95rem;
-    color: var(--wood-dark);
-  }
-  .book {
-    position: relative;
-    background: var(--card);
-    border-left: 10px solid var(--spine, var(--g-etc));
-    border-radius: 2px;
-    padding: 14px 16px 12px 16px;
+  .row {
     display: grid;
-    gap: 2px;
-    box-shadow: 0 1px 0 rgba(0,0,0,.05), 0 8px 18px -14px rgba(40, 50, 40, .55);
-    min-width: 0;
+    grid-auto-flow: column;
+    grid-auto-columns: 156px;
+    gap: 18px;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scroll-snap-type: x proximity;
+    padding-bottom: 10px;
   }
-  .book::before {
+  @media (max-width: 480px) { .row { grid-auto-columns: 138px; gap: 14px; } }
+  .row > .book { scroll-snap-align: start; }
+  .month-title {
+    font-size: 1.05rem;
+    font-weight: 800;
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+  }
+  .month-title small { color: var(--faint); font-weight: 600; font-size: .9rem; }
+  .book { display: grid; gap: 4px; align-content: start; min-width: 0; }
+  .cover {
+    position: relative;
+    aspect-ratio: 3 / 4;
+    max-width: 100%;
+    border-radius: 4px 8px 8px 4px;
+    background: var(--cover, var(--g-etc));
+    color: #fff;
+    padding: 14px 12px 12px 18px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    overflow: hidden;
+    box-shadow: 0 1px 2px rgba(0,0,0,.08), 0 8px 16px -10px rgba(0,0,0,.35);
+    margin-bottom: 8px;
+  }
+  .cover::before {
     content: "";
     position: absolute;
-    left: 0; right: 0; top: 50px;
-    height: 1.5px;
-    background: var(--redline);
-    opacity: .6;
+    left: 0; top: 0; bottom: 0;
+    width: 8px;
+    background: linear-gradient(90deg, rgba(0,0,0,.22), rgba(0,0,0,.05) 70%, rgba(255,255,255,.18));
   }
-  .book-top { display: flex; justify-content: space-between; gap: 12px; align-items: start; min-height: 38px; }
-  .book-title { font-family: var(--serif); font-weight: 700; font-size: 1.15rem; line-height: 1.35; word-break: break-word; min-width: 0; }
-  .stamp {
-    flex: none;
-    font-family: var(--stamp-font);
-    font-weight: 700;
-    font-size: .8rem;
-    color: var(--stamp);
-    border: 2px solid var(--stamp);
-    border-radius: 3px;
-    padding: 1px 6px;
-    transform: rotate(-4deg);
-    opacity: .82;
-    letter-spacing: .02em;
-    white-space: nowrap;
-    margin-top: 2px;
-  }
-  .book-meta { color: var(--muted); font-size: .92rem; word-break: break-word; margin-top: 10px; }
-  .book-meta, .book-stars, .book-review { padding-bottom: 4px; border-bottom: 1px solid var(--rule); }
-  .genre-tag { color: var(--spine, var(--g-etc)); font-weight: 700; }
-  .book-stars { color: #c08a1e; letter-spacing: 1px; }
-  .book-review { font-family: var(--serif); word-break: break-word; }
-  .book-actions { display: flex; gap: 6px; margin-top: 6px; justify-content: flex-end; }
-  .btn-small {
-    background: transparent;
-    border: 1px solid #b9bfb6;
-    border-radius: 4px;
-    padding: 2px 12px;
-    font-size: .88rem;
-    cursor: pointer;
-  }
-  .btn-small:hover { background: #f1efe7; }
-  .btn-small.danger { color: var(--error); border-color: #dcb3ae; }
-  .list-empty { grid-column: 1 / -1; color: var(--muted); margin: 8px 0; }
+  .cover-genre { font-size: .72rem; font-weight: 700; opacity: .85; }
+  .cover-title { font-size: 1.12rem; font-weight: 800; line-height: 1.3; word-break: break-word; letter-spacing: -0.01em;
+    display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; }
+  .cover-author { font-size: .78rem; opacity: .9; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .book-title { font-weight: 700; font-size: 1rem; line-height: 1.35; word-break: break-word;
+    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .book-meta { color: var(--sub); font-size: .88rem; word-break: break-word; }
+  .book-stars { color: #ffb400; font-size: .9rem; letter-spacing: 1px; }
+  .book-review { color: var(--sub); font-size: .88rem; word-break: break-word;
+    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .book-actions { display: flex; gap: 12px; margin-top: 2px; }
+  .btn-text { background: none; border: 0; padding: 2px 0; font-size: .85rem; color: var(--faint); cursor: pointer; }
+  .btn-text:hover { color: var(--ink); text-decoration: underline; }
+  .btn-text.danger:hover { color: var(--error); }
+  .list-empty { color: var(--sub); margin: 0; padding: 32px 0; text-align: center; background: var(--soft); border-radius: 12px; }
 
-  @media (prefers-reduced-motion: reduce) {
-    .bar > span, .stars button { transition: none; }
-  }
+  @media (prefers-reduced-motion: reduce) { .bar > span { transition: none; } }
 </style>
 </head>
 <body>
 <main>
   <header>
     <h1>나의 독서 기록장</h1>
-    <p class="lede">다 읽은 책을 한 권씩 꽂아 두는 나만의 책장</p>
+    <p class="lede" id="lede">다 읽은 책을 한 권씩 기록해 보세요.</p>
   </header>
 
-  <section class="goal" aria-labelledby="goal-heading">
-    <div class="goal-head">
-      <h2 id="goal-heading">올해 목표</h2>
-      <div class="goal-row">
-        <label for="goal-input">목표 권수</label>
-        <input type="number" id="goal-input" min="1" step="1" placeholder="예: 24">
-        <span class="goal-year" id="goal-year"></span>
+  <section class="sec" aria-labelledby="goal-heading">
+    <div class="sec-head">
+      <div>
+        <h2 id="goal-heading">올해 목표</h2>
+        <p class="sec-sub" id="goal-year"></p>
+      </div>
+      <div class="goal-input-wrap">
+        <label for="goal-input" style="display:inline">목표 권수</label>
+        <input class="input" type="number" id="goal-input" min="1" step="1" placeholder="24">
       </div>
     </div>
     <p class="goal-text" id="goal-text"></p>
-    <div>
-      <div class="goal-shelf"><div class="bar" aria-hidden="true"><span id="goal-bar"></span></div></div>
-      <div class="shelf-plank"></div>
+    <div class="report">
+      <span class="who">올해 읽은 책</span>
+      <div class="track"><div class="bar" aria-hidden="true"><span id="goal-bar"></span></div></div>
+      <span class="val mine" id="goal-mine">0권</span>
+      <span class="who">목표</span>
+      <div class="track full" aria-hidden="true"><span></span></div>
+      <span class="val target" id="goal-target">-</span>
     </div>
   </section>
 
-  <div class="desk">
-    <section class="index-card" aria-labelledby="form-heading">
-      <h2 id="form-heading">책 기록하기</h2>
+  <section class="sec" aria-labelledby="form-heading">
+    <div class="sec-head"><h2 id="form-heading">책 기록하기</h2></div>
+    <div class="form-card">
       <form id="book-form" novalidate>
         <label>제목
-          <input class="field" type="text" id="title" autocomplete="off">
+          <input class="input" type="text" id="title" autocomplete="off">
         </label>
         <label>저자
-          <input class="field" type="text" id="author" autocomplete="off">
+          <input class="input" type="text" id="author" autocomplete="off">
         </label>
-        <div class="field-row">
-          <label>다 읽은 날짜
-            <input class="field" type="date" id="date">
-          </label>
-          <label>장르
-            <select class="field" id="genre">
-              <option value="">장르 선택</option>
-              <option>소설</option>
-              <option>에세이</option>
-              <option>인문</option>
-              <option>경제·경영</option>
-              <option>자기계발</option>
-              <option>과학</option>
-              <option>기타</option>
-            </select>
-          </label>
-        </div>
+        <label>다 읽은 날짜
+          <input class="input" type="date" id="date">
+        </label>
+        <label>장르
+          <select class="input" id="genre">
+            <option value="">장르 선택</option>
+            <option>소설</option>
+            <option>에세이</option>
+            <option>인문</option>
+            <option>경제·경영</option>
+            <option>자기계발</option>
+            <option>과학</option>
+            <option>기타</option>
+          </select>
+        </label>
         <fieldset>
           <legend>별점</legend>
           <div class="stars" id="stars" role="radiogroup" aria-label="별점">
@@ -333,42 +270,44 @@
           </div>
         </fieldset>
         <label>한 줄 평
-          <input class="field" type="text" id="review" autocomplete="off">
+          <input class="input" type="text" id="review" autocomplete="off">
         </label>
-        <p class="message" id="form-message" role="status"></p>
-        <div class="actions">
-          <button type="submit" class="btn-primary" id="submit-btn">기록하기</button>
-          <button type="button" class="btn-secondary" id="cancel-btn" hidden>수정 취소</button>
+        <div class="form-foot">
+          <p class="message" id="form-message" role="status"></p>
+          <div class="actions">
+            <button type="button" class="btn-secondary" id="cancel-btn" hidden>수정 취소</button>
+            <button type="submit" class="btn-primary" id="submit-btn">기록하기</button>
+          </div>
         </div>
       </form>
-    </section>
-
-    <section class="monthly-box" aria-labelledby="monthly-heading">
-      <h2 id="monthly-heading">월별 읽은 권수</h2>
-      <ul class="monthly" id="monthly"></ul>
-    </section>
-  </div>
-
-  <section class="catalog" aria-labelledby="list-heading">
-    <div class="catalog-head">
-      <h2 id="list-heading">기록 목록</h2>
     </div>
-    <div class="filters">
-      <label>검색
-        <input class="field" type="text" id="search" placeholder="제목이나 저자로 검색">
-      </label>
-      <label>장르
-        <select class="field" id="genre-filter">
-          <option value="">전체</option>
-          <option>소설</option>
-          <option>에세이</option>
-          <option>인문</option>
-          <option>경제·경영</option>
-          <option>자기계발</option>
-          <option>과학</option>
-          <option>기타</option>
-        </select>
-      </label>
+  </section>
+
+  <section class="sec" aria-labelledby="monthly-heading">
+    <div class="sec-head"><h2 id="monthly-heading">월별 읽은 권수</h2></div>
+    <ul class="monthly" id="monthly"></ul>
+  </section>
+
+  <section class="sec" aria-labelledby="list-heading">
+    <div class="sec-head">
+      <h2 id="list-heading">기록 목록</h2>
+      <div class="filters">
+        <label><span class="sr">검색</span>
+          <input class="input" type="text" id="search" placeholder="제목·저자 검색">
+        </label>
+        <label><span class="sr">장르</span>
+          <select class="input" id="genre-filter">
+            <option value="">전체 장르</option>
+            <option>소설</option>
+            <option>에세이</option>
+            <option>인문</option>
+            <option>경제·경영</option>
+            <option>자기계발</option>
+            <option>과학</option>
+            <option>기타</option>
+          </select>
+        </label>
+      </div>
     </div>
     <div id="list"></div>
   </section>
@@ -502,18 +441,21 @@
 
   function renderGoal() {
     const year = String(new Date().getFullYear());
-    $("goal-year").textContent = year + "년 기준";
+    $("goal-year").textContent = year + "년 1월 1일부터 오늘까지";
     const count = books.filter((b) => b.date.slice(0, 4) === year).length;
     const text = $("goal-text"), bar = $("goal-bar");
+    $("goal-mine").textContent = count + "권";
     if (!goal) {
       text.textContent = "올해 목표 권수를 정해 보세요.";
       text.classList.add("empty");
+      $("goal-target").textContent = "-";
       bar.style.width = "0%";
       return;
     }
     const pct = Math.round((count / goal) * 100);
     text.textContent = goal + "권 중 " + count + "권 (" + pct + "%)";
     text.classList.remove("empty");
+    $("goal-target").textContent = goal + "권";
     bar.style.width = Math.min(pct, 100) + "%";
   }
 
@@ -526,19 +468,13 @@
     return list.slice().sort((a, b) =>
       a.date === b.date ? b.created - a.created : (a.date < b.date ? 1 : -1));
   }
-  // 제목 글자로 책등 높이를 조금씩 다르게
-  function spineHeight(title) {
-    let h = 0;
-    for (const ch of title) h = (h * 31 + ch.charCodeAt(0)) % 997;
-    return 30 + (h % 15);
-  }
 
   function renderMonthly() {
     const ul = $("monthly");
     ul.innerHTML = "";
-    const byMonth = {};
-    sortedBooks(books).forEach((b) => { (byMonth[monthKey(b.date)] ||= []).push(b); });
-    const keys = Object.keys(byMonth).sort().reverse();
+    const counts = {};
+    books.forEach((b) => { const k = monthKey(b.date); counts[k] = (counts[k] || 0) + 1; });
+    const keys = Object.keys(counts).sort().reverse();
     if (keys.length === 0) {
       const li = document.createElement("li");
       const note = document.createElement("span");
@@ -548,33 +484,22 @@
       ul.appendChild(li);
       return;
     }
+    const max = Math.max(...keys.map((k) => counts[k]));
     keys.forEach((k) => {
       const li = document.createElement("li");
       const label = document.createElement("span");
       label.className = "month-name";
       label.textContent = monthLabel(k);
-
-      const shelf = document.createElement("div");
-      shelf.className = "month-shelf";
-      shelf.setAttribute("aria-hidden", "true");
-      const spines = document.createElement("div");
-      spines.className = "spines";
-      byMonth[k].forEach((b) => {
-        const s = document.createElement("span");
-        s.className = "spine";
-        s.style.height = spineHeight(b.title) + "px";
-        s.style.background = GENRE_COLOR[b.genre] || "var(--g-etc)";
-        s.title = b.title;
-        spines.appendChild(s);
-      });
-      const plank = document.createElement("div");
-      plank.className = "shelf-plank";
-      shelf.append(spines, plank);
-
+      const bar = document.createElement("div");
+      bar.className = "month-bar";
+      bar.setAttribute("aria-hidden", "true");
+      const fill = document.createElement("span");
+      fill.style.width = (counts[k] / max * 100) + "%";
+      bar.appendChild(fill);
       const c = document.createElement("span");
       c.className = "month-count";
-      c.textContent = byMonth[k].length + "권";
-      li.append(label, shelf, c);
+      c.textContent = counts[k] + "권";
+      li.append(label, bar, c);
       ul.appendChild(li);
     });
   }
@@ -596,37 +521,53 @@
       (!g || b.genre === g));
     if (filtered.length === 0) { empty("조건에 맞는 기록이 없습니다."); return; }
 
-    let currentMonth = null;
+    const perMonth = {};
+    filtered.forEach((b) => { const k = monthKey(b.date); perMonth[k] = (perMonth[k] || 0) + 1; });
+
+    let currentMonth = null, row = null;
     filtered.forEach((b) => {
       const k = monthKey(b.date);
       if (k !== currentMonth) {
         currentMonth = k;
+        const block = document.createElement("div");
+        block.className = "shelf-row";
         const h = document.createElement("h3");
         h.className = "month-title";
         h.textContent = monthLabel(k);
-        list.appendChild(h);
+        const small = document.createElement("small");
+        small.textContent = perMonth[k] + "권";
+        h.appendChild(small);
+        row = document.createElement("div");
+        row.className = "row";
+        block.append(h, row);
+        list.appendChild(block);
       }
       const card = document.createElement("article");
       card.className = "book";
-      card.style.setProperty("--spine", GENRE_COLOR[b.genre] || "var(--g-etc)");
+      card.style.setProperty("--cover", GENRE_COLOR[b.genre] || "var(--g-etc)");
 
-      const top = document.createElement("div");
-      top.className = "book-top";
+      const cover = document.createElement("div");
+      cover.className = "cover";
+      cover.setAttribute("aria-hidden", "true");
+      const cg = document.createElement("span");
+      cg.className = "cover-genre";
+      cg.textContent = b.genre;
+      const ct = document.createElement("span");
+      ct.className = "cover-title";
+      ct.textContent = b.title;
+      const ca = document.createElement("span");
+      ca.className = "cover-author";
+      ca.textContent = b.author;
+      cover.append(cg, ct, ca);
+
       const title = document.createElement("div");
       title.className = "book-title";
       title.textContent = b.title;
-      const stamp = document.createElement("span");
-      stamp.className = "stamp";
-      stamp.textContent = b.date.replace(/-/g, ".");
-      stamp.setAttribute("aria-label", "다 읽은 날짜 " + b.date);
-      top.append(title, stamp);
+      title.title = b.title;
 
       const meta = document.createElement("div");
       meta.className = "book-meta";
-      const tag = document.createElement("span");
-      tag.className = "genre-tag";
-      tag.textContent = b.genre;
-      meta.append(b.author + "  /  ", tag);
+      meta.textContent = b.author + "  ·  " + b.date.replace(/-/g, ".");
 
       const stars = document.createElement("div");
       stars.className = "book-stars";
@@ -636,23 +577,24 @@
       const review = document.createElement("div");
       review.className = "book-review";
       review.textContent = b.review;
+      review.title = b.review;
 
       const actions = document.createElement("div");
       actions.className = "book-actions";
       const edit = document.createElement("button");
       edit.type = "button";
-      edit.className = "btn-small";
+      edit.className = "btn-text";
       edit.textContent = "수정";
       edit.addEventListener("click", () => startEdit(b.id));
       const del = document.createElement("button");
       del.type = "button";
-      del.className = "btn-small danger";
+      del.className = "btn-text danger";
       del.textContent = "삭제";
       del.addEventListener("click", () => removeBook(b.id));
       actions.append(edit, del);
 
-      card.append(top, meta, stars, review, actions);
-      list.appendChild(card);
+      card.append(cover, title, meta, stars, review, actions);
+      row.appendChild(card);
     });
   }
 
@@ -687,6 +629,9 @@
   $("genre-filter").addEventListener("change", renderList);
 
   function render() {
+    $("lede").textContent = books.length
+      ? "지금까지 " + books.length + "권을 기록했습니다."
+      : "다 읽은 책을 한 권씩 기록해 보세요.";
     renderGoal();
     renderMonthly();
     renderList();
