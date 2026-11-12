@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>나의 독서 기록장</title>
+<style>
+  :root {
+    --bg: #f5f3ef;
+    --card: #ffffff;
+    --ink: #2b2a28;
+    --muted: #6f6a62;
+    --line: #e2ddd5;
+    --accent: #2f6f5e;
+    --accent-weak: #e3efe9;
+    --star: #e0a526;
+    --error: #b3362b;
+    --error-bg: #fbe9e7;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: "Apple SD Gothic Neo", "Malgun Gothic", "Noto Sans KR", sans-serif;
+    font-size: 16px;
+    line-height: 1.55;
+  }
+  main {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 24px 16px 48px;
+    display: grid;
+    gap: 20px;
+  }
+  h1 { margin: 0; font-size: 1.7rem; }
+  h2 { margin: 0 0 12px; font-size: 1.15rem; }
+  section.card {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 18px;
+    min-width: 0;
+  }
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  @media (max-width: 720px) { .two-col { grid-template-columns: 1fr; } }
+
+  /* 올해 목표 */
+  .goal-row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; }
+  .goal-row input { width: 90px; }
+  .goal-text { margin: 12px 0 8px; font-weight: 700; font-size: 1.1rem; }
+  .goal-text.empty { font-weight: 400; color: var(--muted); font-size: 1rem; }
+  .bar { height: 12px; background: var(--accent-weak); border-radius: 6px; overflow: hidden; }
+  .bar > span { display: block; height: 100%; width: 0; background: var(--accent); transition: width .3s; }
+
+  /* 입력 폼 */
+  form { display: grid; gap: 12px; }
+  label { display: grid; gap: 4px; font-weight: 600; font-size: .95rem; }
+  input[type="text"], input[type="date"], input[type="number"], select {
+    width: 100%;
+    font: inherit;
+    padding: 8px 10px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: #fff;
+    color: var(--ink);
+  }
+  .goal-row input[type="number"] { width: 100px; }
+  .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  @media (max-width: 480px) { .field-row { grid-template-columns: 1fr; } }
+  fieldset { border: 0; padding: 0; margin: 0; }
+  legend { font-weight: 600; font-size: .95rem; margin-bottom: 4px; }
+  .stars { display: flex; gap: 4px; }
+  .stars button {
+    font-size: 1.7rem;
+    line-height: 1;
+    background: none;
+    border: 0;
+    padding: 2px;
+    cursor: pointer;
+    color: #cfc8bc;
+  }
+  .stars button.on { color: var(--star); }
+  .stars button:focus-visible { outline: 2px solid var(--accent); border-radius: 4px; }
+  .actions { display: flex; flex-wrap: wrap; gap: 8px; }
+  button.primary, button.secondary, button.small {
+    font: inherit;
+    border-radius: 8px;
+    cursor: pointer;
+  }
+  button.primary { background: var(--accent); color: #fff; border: 0; padding: 10px 18px; font-weight: 700; }
+  button.secondary { background: #fff; color: var(--ink); border: 1px solid var(--line); padding: 10px 14px; }
+  .message { min-height: 1.4em; margin: 0; font-size: .95rem; }
+  .message.error { color: var(--error); background: var(--error-bg); padding: 6px 10px; border-radius: 6px; }
+  .message.ok { color: var(--accent); }
+
+  /* 월별 */
+  .monthly { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+  .monthly li { display: flex; justify-content: space-between; border-bottom: 1px dashed var(--line); padding: 4px 0; }
+  .monthly .count { font-weight: 700; }
+  .muted { color: var(--muted); }
+
+  /* 목록 */
+  .filters { display: grid; grid-template-columns: 2fr 1fr; gap: 10px; margin-bottom: 14px; }
+  @media (max-width: 480px) { .filters { grid-template-columns: 1fr; } }
+  .month-title { margin: 16px 0 8px; font-size: 1rem; color: var(--muted); }
+  .book {
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 12px 14px;
+    margin-bottom: 10px;
+    display: grid;
+    gap: 4px;
+  }
+  .book-title { font-weight: 700; font-size: 1.05rem; word-break: break-word; }
+  .book-meta { color: var(--muted); font-size: .92rem; word-break: break-word; }
+  .book-stars { color: var(--star); letter-spacing: 1px; }
+  .book-review { word-break: break-word; }
+  .genre-tag { display: inline-block; background: var(--accent-weak); color: var(--accent); border-radius: 999px; padding: 0 8px; font-size: .85rem; }
+  .book-actions { display: flex; gap: 6px; margin-top: 4px; }
+  button.small { background: #fff; border: 1px solid var(--line); padding: 4px 10px; font-size: .9rem; }
+  button.small.danger { color: var(--error); }
+</style>
+</head>
+<body>
+<main>
+  <h1>나의 독서 기록장</h1>
+
+  <section class="card" aria-labelledby="goal-heading">
+    <h2 id="goal-heading">올해 목표</h2>
+    <div class="goal-row">
+      <label for="goal-input" style="display:inline">목표 권수</label>
+      <input type="number" id="goal-input" min="1" step="1" placeholder="예: 24">
+      <span class="muted" id="goal-year"></span>
+    </div>
+    <p class="goal-text" id="goal-text"></p>
+    <div class="bar" aria-hidden="true"><span id="goal-bar"></span></div>
+  </section>
+
+  <div class="two-col">
+    <section class="card" aria-labelledby="form-heading">
+      <h2 id="form-heading">책 기록하기</h2>
+      <form id="book-form" novalidate>
+        <label>제목
+          <input type="text" id="title" autocomplete="off">
+        </label>
+        <label>저자
+          <input type="text" id="author" autocomplete="off">
+        </label>
+        <div class="field-row">
+          <label>다 읽은 날짜
+            <input type="date" id="date">
+          </label>
+          <label>장르
+            <select id="genre">
+              <option value="">장르 선택</option>
+              <option>소설</option>
+              <option>에세이</option>
+              <option>인문</option>
+              <option>경제·경영</option>
+              <option>자기계발</option>
+              <option>과학</option>
+              <option>기타</option>
+            </select>
+          </label>
+        </div>
+        <fieldset>
+          <legend>별점</legend>
+          <div class="stars" id="stars" role="radiogroup" aria-label="별점">
+            <button type="button" data-value="1" aria-label="1점">★</button>
+            <button type="button" data-value="2" aria-label="2점">★</button>
+            <button type="button" data-value="3" aria-label="3점">★</button>
+            <button type="button" data-value="4" aria-label="4점">★</button>
+            <button type="button" data-value="5" aria-label="5점">★</button>
+          </div>
+        </fieldset>
+        <label>한 줄 평
+          <input type="text" id="review" autocomplete="off">
+        </label>
+        <p class="message" id="form-message" role="status"></p>
+        <div class="actions">
+          <button type="submit" class="primary" id="submit-btn">기록하기</button>
+          <button type="button" class="secondary" id="cancel-btn" hidden>수정 취소</button>
+        </div>
+      </form>
+    </section>
+
+    <section class="card" aria-labelledby="monthly-heading">
+      <h2 id="monthly-heading">월별 읽은 권수</h2>
+      <ul class="monthly" id="monthly"></ul>
+    </section>
+  </div>
+
+  <section class="card" aria-labelledby="list-heading">
+    <h2 id="list-heading">기록 목록</h2>
+    <div class="filters">
+      <label>검색
+        <input type="text" id="search" placeholder="제목이나 저자로 검색">
+      </label>
+      <label>장르
+        <select id="genre-filter">
+          <option value="">전체</option>
+          <option>소설</option>
+          <option>에세이</option>
+          <option>인문</option>
+          <option>경제·경영</option>
+          <option>자기계발</option>
+          <option>과학</option>
+          <option>기타</option>
+        </select>
+      </label>
+    </div>
+    <div id="list"></div>
+  </section>
+</main>
+
+<script>
+(function () {
+  const STORAGE_KEY = "reading-log-books";
+  const GOAL_KEY = "reading-log-goal";
+
+  const $ = (id) => document.getElementById(id);
+  const form = $("book-form");
+  const titleEl = $("title"), authorEl = $("author"), dateEl = $("date"),
+        genreEl = $("genre"), reviewEl = $("review");
+  const starButtons = Array.from(document.querySelectorAll("#stars button"));
+  const messageEl = $("form-message");
+  const submitBtn = $("submit-btn"), cancelBtn = $("cancel-btn");
+
+  let books = load(STORAGE_KEY, []);
+  let goal = load(GOAL_KEY, null);
+  let rating = 0;
+  let editingId = null;
+
+  function load(key, fallback) {
+    try {
+      const raw = localStorage.getItem(key);
+      return raw === null ? fallback : JSON.parse(raw);
+    } catch (e) {
+      return fallback;
+    }
+  }
+  function save() {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(books));
+      localStorage.setItem(GOAL_KEY, JSON.stringify(goal));
+    } catch (e) { /* 저장할 수 없는 환경에서는 화면에만 유지 */ }
+  }
+
+  // 기기 기준 오늘 날짜 (YYYY-MM-DD)
+  function today() {
+    const d = new Date();
+    const m = String(d.getMonth() + 1).padStart(2, "0");
+    const day = String(d.getDate()).padStart(2, "0");
+    return d.getFullYear() + "-" + m + "-" + day;
+  }
+
+  function setRating(value) {
+    rating = value;
+    starButtons.forEach((b) => {
+      const on = Number(b.dataset.value) <= value;
+      b.classList.toggle("on", on);
+      b.setAttribute("aria-checked", Number(b.dataset.value) === value ? "true" : "false");
+    });
+  }
+  starButtons.forEach((b) => {
+    b.setAttribute("role", "radio");
+    b.addEventListener("click", () => setRating(Number(b.dataset.value)));
+  });
+
+  function resetForm() {
+    form.reset();
+    dateEl.value = today();
+    setRating(0);
+    editingId = null;
+    submitBtn.textContent = "기록하기";
+    cancelBtn.hidden = true;
+  }
+
+  function showMessage(text, type) {
+    messageEl.textContent = text;
+    messageEl.className = "message" + (type ? " " + type : "");
+  }
+
+  form.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const data = {
+      title: titleEl.value.trim(),
+      author: authorEl.value.trim(),
+      date: dateEl.value,
+      rating: rating,
+      review: reviewEl.value.trim(),
+      genre: genreEl.value
+    };
+    const checks = [
+      [data.title, "제목을 입력해 주세요.", titleEl],
+      [data.author, "저자를 입력해 주세요.", authorEl],
+      [data.date, "다 읽은 날짜를 입력해 주세요.", dateEl],
+      [data.rating, "별점을 골라 주세요.", starButtons[0]],
+      [data.review, "한 줄 평을 입력해 주세요.", reviewEl],
+      [data.genre, "장르를 골라 주세요.", genreEl]
+    ];
+    for (const [value, msg, el] of checks) {
+      if (!value) { showMessage(msg, "error"); el.focus(); return; }
+    }
+    if (data.date > today()) {
+      showMessage("다 읽은 날짜는 오늘 이전이어야 합니다.", "error");
+      dateEl.focus();
+      return;
+    }
+
+    if (editingId) {
+      const book = books.find((b) => b.id === editingId);
+      if (book) Object.assign(book, data);
+      showMessage("「" + data.title + "」 기록을 수정했습니다.", "ok");
+    } else {
+      books.push(Object.assign({ id: Date.now().toString(36) + Math.random().toString(36).slice(2, 6), created: Date.now() }, data));
+      showMessage("「" + data.title + "」을(를) 기록했습니다.", "ok");
+    }
+    save();
+    resetForm();
+    render();
+  });
+
+  cancelBtn.addEventListener("click", () => {
+    resetForm();
+    showMessage("", "");
+  });
+
+  // 목표
+  const goalInput = $("goal-input");
+  goalInput.addEventListener("input", () => {
+    const n = parseInt(goalInput.value, 10);
+    goal = Number.isFinite(n) && n > 0 ? n : null;
+    save();
+    renderGoal();
+  });
+
+  function renderGoal() {
+    const year = String(new Date().getFullYear());
+    $("goal-year").textContent = year + "년 기준";
+    const count = books.filter((b) => b.date.slice(0, 4) === year).length;
+    const text = $("goal-text"), bar = $("goal-bar");
+    if (!goal) {
+      text.textContent = "올해 목표 권수를 정해 보세요.";
+      text.classList.add("empty");
+      bar.style.width = "0%";
+      return;
+    }
+    const pct = Math.round((count / goal) * 100);
+    text.textContent = goal + "권 중 " + count + "권 (" + pct + "%)";
+    text.classList.remove("empty");
+    bar.style.width = Math.min(pct, 100) + "%";
+  }
+
+  function monthKey(date) { return date.slice(0, 7); }
+  function monthLabel(key) {
+    const [y, m] = key.split("-");
+    return y + "년 " + Number(m) + "월";
+  }
+  function sortedBooks(list) {
+    return list.slice().sort((a, b) =>
+      a.date === b.date ? b.created - a.created : (a.date < b.date ? 1 : -1));
+  }
+
+  function renderMonthly() {
+    const ul = $("monthly");
+    ul.innerHTML = "";
+    const counts = {};
+    books.forEach((b) => { const k = monthKey(b.date); counts[k] = (counts[k] || 0) + 1; });
+    const keys = Object.keys(counts).sort().reverse();
+    if (keys.length === 0) {
+      const li = document.createElement("li");
+      li.className = "muted";
+      li.textContent = "아직 기록한 책이 없습니다.";
+      ul.appendChild(li);
+      return;
+    }
+    keys.forEach((k) => {
+      const li = document.createElement("li");
+      const label = document.createElement("span");
+      label.textContent = monthLabel(k);
+      const c = document.createElement("span");
+      c.className = "count";
+      c.textContent = counts[k] + "권";
+      li.append(label, c);
+      ul.appendChild(li);
+    });
+  }
+
+  function renderList() {
+    const list = $("list");
+    list.innerHTML = "";
+    if (books.length === 0) {
+      const p = document.createElement("p");
+      p.className = "muted";
+      p.textContent = "아직 기록한 책이 없습니다.";
+      list.appendChild(p);
+      return;
+    }
+    const q = $("search").value.trim().toLowerCase();
+    const g = $("genre-filter").value;
+    const filtered = sortedBooks(books).filter((b) =>
+      (!q || b.title.toLowerCase().includes(q) || b.author.toLowerCase().includes(q)) &&
+      (!g || b.genre === g));
+    if (filtered.length === 0) {
+      const p = document.createElement("p");
+      p.className = "muted";
+      p.textContent = "조건에 맞는 기록이 없습니다.";
+      list.appendChild(p);
+      return;
+    }
+    let currentMonth = null;
+    filtered.forEach((b) => {
+      const k = monthKey(b.date);
+      if (k !== currentMonth) {
+        currentMonth = k;
+        const h = document.createElement("h3");
+        h.className = "month-title";
+        h.textContent = monthLabel(k);
+        list.appendChild(h);
+      }
+      const card = document.createElement("article");
+      card.className = "book";
+
+      const title = document.createElement("div");
+      title.className = "book-title";
+      title.textContent = b.title;
+
+      const meta = document.createElement("div");
+      meta.className = "book-meta";
+      const tag = document.createElement("span");
+      tag.className = "genre-tag";
+      tag.textContent = b.genre;
+      meta.append(b.author + " · " + b.date + " · ", tag);
+
+      const stars = document.createElement("div");
+      stars.className = "book-stars";
+      stars.textContent = "★".repeat(b.rating) + "☆".repeat(5 - b.rating);
+      stars.setAttribute("aria-label", "별점 " + b.rating + "점");
+
+      const review = document.createElement("div");
+      review.className = "book-review";
+      review.textContent = b.review;
+
+      const actions = document.createElement("div");
+      actions.className = "book-actions";
+      const edit = document.createElement("button");
+      edit.type = "button";
+      edit.className = "small";
+      edit.textContent = "수정";
+      edit.addEventListener("click", () => startEdit(b.id));
+      const del = document.createElement("button");
+      del.type = "button";
+      del.className = "small danger";
+      del.textContent = "삭제";
+      del.addEventListener("click", () => removeBook(b.id));
+      actions.append(edit, del);
+
+      card.append(title, meta, stars, review, actions);
+      list.appendChild(card);
+    });
+  }
+
+  function startEdit(id) {
+    const b = books.find((x) => x.id === id);
+    if (!b) return;
+    editingId = id;
+    titleEl.value = b.title;
+    authorEl.value = b.author;
+    dateEl.value = b.date;
+    genreEl.value = b.genre;
+    reviewEl.value = b.review;
+    setRating(b.rating);
+    submitBtn.textContent = "수정 완료";
+    cancelBtn.hidden = false;
+    showMessage("「" + b.title + "」 기록을 고치는 중입니다.", "");
+    form.scrollIntoView({ behavior: "smooth", block: "start" });
+    titleEl.focus({ preventScroll: true });
+  }
+
+  function removeBook(id) {
+    const b = books.find((x) => x.id === id);
+    if (!b) return;
+    if (!confirm("「" + b.title + "」 기록을 삭제할까요?")) return;
+    books = books.filter((x) => x.id !== id);
+    if (editingId === id) resetForm();
+    save();
+    render();
+  }
+
+  $("search").addEventListener("input", renderList);
+  $("genre-filter").addEventListener("change", renderList);
+
+  function render() {
+    renderGoal();
+    renderMonthly();
+    renderList();
+  }
+
+  if (goal) goalInput.value = goal;
+  dateEl.max = today();
+  resetForm();
+  render();
+})();
+</script>
+</body>
+</html>
